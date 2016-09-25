@@ -12,14 +12,11 @@ var ship_url = DOMURL.createObjectURL(ship);
 var explosion_img = new Image();
 var explosion = new Blob(['<svg id="Explosion" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 284.13 215.71"><defs><style>.cls-1{fill:#c13b2c;}.cls-2{fill:#e97524;}.cls-3{fill:#edc91d;}.cls-4{fill:#ecf0f1;}</style></defs><title>pew_js_texture_explosion</title><polygon class="cls-1" points="41.92 0 0 92.33 32.61 85.29 0 144.29 60.55 121 72.97 215.71 124.21 158.77 158.37 215.71 190.98 147.4 256.19 200.19 256.19 133.42 284.13 148.95 273.27 0 41.92 0"/><polygon class="cls-2" points="52.79 0 12.42 79.39 52.79 74.42 12.42 136.53 77.63 107.03 77.63 190.87 130.42 144.29 158.37 200.19 189.42 127.21 256.19 184.66 243.77 113.24 267.06 130.32 260.85 0 52.79 0"/><polygon class="cls-3" points="69.87 0 32.61 69.76 69.87 54.24 32.61 125.66 85.4 91.5 85.4 178.45 130.42 125.66 164.58 184.66 186.32 103.92 242.21 169.13 232.9 79.39 256.19 121 249.98 0 69.87 0"/><polygon class="cls-4" points="97.82 0 239.11 0 256.19 107 214.26 39.16 226.69 144.49 184.76 72.24 163.03 158.77 144.4 79.39 97.82 158.77 110.24 60.58 60.55 96.28 97.82 0"/></svg>'], {type: 'image/svg+xml;charset=utf-8'})
 var explosion_url = DOMURL.createObjectURL(explosion);
-
-
-
 //ship style
 ship_img.style.width = WIDTH/10+'px';
 ship_img.style.height = 'auto';
 ship_img.style.margin = 'auto';
-ship_img.style.display = 'block'
+ship_img.style.display = 'none'
 ship_img.style.zIndex = '10000';
 ship_img.style.position= 'fixed';
 ship_img.style.left = 0;
@@ -29,7 +26,6 @@ ship_img.style.bottom = 0;
 ship_img.style.paddingTop = TOTAL_FRAME/2+'px';
 ship_img.src = ship_url;
 document.body.appendChild(ship_img);
-
 //explosion style
 explosion_img.style.width = WIDTH/10+'px';
 explosion_img.style.height = 'auto';
@@ -44,15 +40,11 @@ explosion_img.style.bottom = 0;
 explosion_img.style.paddingBottom = TOTAL_FRAME/2-EXPLOSION_OFFSET+'px';
 explosion_img.src = explosion_url;
 document.body.appendChild(explosion_img);
-
-
 //animation
-animation();
-
-
 function animation() {
   var limit = TOTAL_FRAME;
   var count = 0;
+  ship_img.style.display="block";
   var add = setInterval(function () {
     if (count<MIDPOINT) {
       ship_img.style.paddingTop = (TOTAL_FRAME/2-count)+'px';
@@ -64,10 +56,36 @@ function animation() {
     if(count > limit) {
       explosion_img.style.display='block';
       ship_img.style.display='none';
+      setTimeout(function () {
+        chrome.runtime.sendMessage({'action': 'close window'})
+      },EXPLOSION_TIME);
       clearInterval(add);
     }
   },REFRESH_SPEED);
 }
 
+//events
+chrome.runtime.onMessage.addListener(function (msg) {
+  if (msg["action"]=="animation")
+    animation();
+});
+document.addEventListener('visibilitychange', function(){
+    if (document.hidden) {
+      annyang.abort();
+    }else {
+      annyang.resume();
+    }
+});
 
-(1+TOTAL_FRAME/STEP)*REFRESH_SPEED+EXPLOSION_TIME
+//annyang init
+if (annyang) {
+  var commands = {
+    'explode': function() {
+      if ( document.hasFocus() ) {
+        animation();
+      }
+    }
+  };
+  annyang.addCommands(commands);
+  annyang.start();
+}

@@ -1,9 +1,10 @@
 chrome.browserAction.onClicked.addListener(function(tab) {
-  chrome.tabs.executeScript({
-    file: 'index.js'
-  }, function (timer) {
-    setTimeout(function () {
-      chrome.tabs.remove(tab.id);
-    },timer);
-  });
+  chrome.tabs.sendMessage(tab.id,{"action":"animation"});
 });
+
+
+chrome.runtime.onMessage.addListener(function (msg,sender) {
+  if (msg["action"] == "close window") {
+    chrome.tabs.remove(sender.tab.id);
+  }
+})
