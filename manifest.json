@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+
+  "name": "pew",
+  "description": "close your tab the right way",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_title": "pew"
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  }
+}
