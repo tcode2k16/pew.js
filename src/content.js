@@ -88,4 +88,9 @@ if (annyang) {
   };
   annyang.addCommands(commands);
   annyang.start();
+  if (document.hidden) {
+    annyang.abort();
+  }else {
+    annyang.resume();
+  }
 }
