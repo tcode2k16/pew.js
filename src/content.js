@@ -90,7 +90,5 @@ if (annyang) {
   annyang.start();
   if (document.hidden) {
     annyang.abort();
-  }else {
-    annyang.resume();
   }
 }
